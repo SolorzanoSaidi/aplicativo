@@ -29,9 +29,31 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="index" 
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen name="calculator" 
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen name="options"
+          options={{
+            headerShown: true,
+            headerTitle: 'Método de predicción',
+          }}
+        />
+        <Stack.Screen name="result"
+          options={{
+            headerShown: true,
+            headerTitle: 'Resultados',
+          }}
+        />
         <Stack.Screen name="+not-found" />
       </Stack>
     </ThemeProvider>
   );
 }
+
