@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Dimensions } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import { LineChartData } from 'react-native-chart-kit/dist/line-chart/LineChart';
+import { LoaderScreen } from 'react-native-ui-lib';
 
 interface RocCurveProps {
     data: {
@@ -14,7 +15,7 @@ interface RocCurveProps {
 const RocCurve = ({ data }: RocCurveProps) => {
     const [dataChart, setDataChart] = useState<LineChartData>({
         labels: [
-            "0","1","2"
+            "0", "1", "2"
         ],
         datasets: [
             {
@@ -22,18 +23,14 @@ const RocCurve = ({ data }: RocCurveProps) => {
             }
         ],
     });
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (data.fpr.length === 0) {
-            return;
+        if (data.fpr.length > 0 && data.tpr.length > 0 && data.thresholds.length > 0) {
+            setLoading(false);
         }
-        if (data.fpr.length !== data.tpr.length) {
-            return;
-        }
-        if (data.fpr.length !== data.thresholds.length) {
-            return;
-        }
-        try{
+
+        try {
             const _data: LineChartData = {
                 labels: data.fpr.length > 0 ? data.fpr.map((_, i) => i.toString()) : [],
                 datasets: [
@@ -51,7 +48,8 @@ const RocCurve = ({ data }: RocCurveProps) => {
             };
             setDataChart(_data);
 
-        }catch(e){
+        } catch (e) {
+            console.log(e);
             setDataChart({
                 labels: [
                     "0", "1", "2"
@@ -62,43 +60,46 @@ const RocCurve = ({ data }: RocCurveProps) => {
                     }
                 ],
             });
+            setLoading(false);
 
         }
-        
-    }, []);
+
+    }, [data]);
 
     return (
-        <LineChart
-            data={{
-              labels: dataChart.labels,
-                datasets: dataChart.datasets,
-                
-            }}
-            width={Dimensions.get("window").width - 20} // from react-native
-            height={220}
-            yAxisInterval={1} // optional, defaults to 1
-            chartConfig={{
-                backgroundColor: "#fff",
-                backgroundGradientFrom: "#fff",
-                backgroundGradientTo: "#fff",
-                decimalPlaces: 2, // optional, defaults to 2dp
-                color: (opacity = 1) => `rgba(19, 86, 126, ${opacity})`,
-                labelColor: (opacity = 1) => `rgba(19, 86, 126, ${opacity})`,
-                style: {
+        loading ?
+            <LoaderScreen></LoaderScreen> :
+            <LineChart
+                data={{
+                    labels: dataChart.labels,
+                    datasets: dataChart.datasets,
+
+                }}
+                width={Dimensions.get("window").width - 20} // from react-native
+                height={220}
+                yAxisInterval={1} // optional, defaults to 1
+                chartConfig={{
+                    backgroundColor: "#fff",
+                    backgroundGradientFrom: "#fff",
+                    backgroundGradientTo: "#fff",
+                    decimalPlaces: 2, // optional, defaults to 2dp
+                    color: (opacity = 1) => `rgba(19, 86, 126, ${opacity})`,
+                    labelColor: (opacity = 1) => `rgba(19, 86, 126, ${opacity})`,
+                    style: {
+                        borderRadius: 16,
+                    },
+                    propsForDots: {
+                        r: "6",
+                        strokeWidth: "2",
+                        stroke: "blue",
+                    },
+                }}
+                bezier
+                style={{
+                    marginVertical: 8,
                     borderRadius: 16,
-                },
-                propsForDots: {
-                    r: "6",
-                    strokeWidth: "2",
-                    stroke: "blue",
-                },
-            }}
-            bezier
-            style={{
-                marginVertical: 8,
-                borderRadius: 16,
-            }}
-        />
+                }}
+            />
     );
 };
 
