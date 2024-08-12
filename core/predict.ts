@@ -30,7 +30,7 @@ export interface RocData {
 export interface RedNeuronal {
     roc_data: RocData;
     nueva_prediccion: number;
-    nueva_prediccion_probabilidad: number[];
+    nueva_prediccion_probabilidad: number[][];
 }
 
 /*{

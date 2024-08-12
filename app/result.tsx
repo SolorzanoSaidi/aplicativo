@@ -13,8 +13,10 @@ import { LoaderScreen, Text, View } from "react-native-ui-lib"
 
 const ResultHome = () => {
 
-    const { temperature, humidity, tdsValue, phLevel } = useLocalSearchParams();
+    const { temperature, humidity, tdsValue, phLevel,type } = useLocalSearchParams();
 
+    const [probRedNeuronal, setProbRedNeuronal] = useState<number>(0);
+    const [probRandomForest, setProbRandomForest] = useState<number>(0);
 
     const [predictData, setPredictData] = useState<ResultPredict>({
         data: {
@@ -27,7 +29,7 @@ const ResultHome = () => {
                     thresholds: []
                 },
                 nueva_prediccion: 0,
-                nueva_prediccion_probabilidad: [0]
+                nueva_prediccion_probabilidad: []
             } as RedNeuronal,
             random_forest: {
                 nueva_prediccion: [0],
@@ -67,6 +69,9 @@ const ResultHome = () => {
             setPredictData(result);
             setRbga(colorRbgValorNeutrosofico(result.data.valor_neutrosófico).replace("{opacity}", "0.5"));
             setLoading(false);
+            let valor = result.data.red_neuronal.nueva_prediccion_probabilidad[0].length > 0 ? result.data.red_neuronal.nueva_prediccion_probabilidad[0][0] : 0;
+            setProbRedNeuronal(Math.round(result.data.calidad_final * 100));
+            setProbRandomForest(Math.round(result.data.calidad_final * 100));
         }).catch((error) => {
             console.log("Error", error);
             setLoading(false);
@@ -81,7 +86,13 @@ const ResultHome = () => {
         loading ? <LoaderScreen></LoaderScreen>:
         <ScrollView>
             <StyledView className="container flex flex-col bg-white h-full">
-
+                {
+                        type == "RN" ? <StyledText className="text-2xl text-center font-bold  text-gray-800">
+                            Predicción Red Neuronal
+                        </StyledText> : <StyledText className="text-2xl text-center font-bold  text-gray-800">
+                            Predicción Random Forest
+                        </StyledText>
+                }
                 <StyledText className="text-sm text-center font-bold  mt-5 text-green-800">Resultados</StyledText>
                 <StyledView className="flex flex-col items-center p-x-6">
                     <StyledText className="text-2xl text-center font-bold  text-gray-800">
@@ -91,7 +102,9 @@ const ResultHome = () => {
                         </StyledText>
                     </StyledText>
                 </StyledView>
-
+                { type ==="RN" &&
+                <>
+                
                 <StyledView className="flex flex-col items-center p-x-6">
                     <StyledText>
                         Porcentaje de Calidad
@@ -103,8 +116,7 @@ const ResultHome = () => {
                             data={{
                                 data: [
 
-                                    predictData?.data.red_neuronal.nueva_prediccion_probabilidad.length > 0 ?
-                                        predictData?.data.red_neuronal.nueva_prediccion_probabilidad[0] : 0
+                                  probRedNeuronal  
                                 ],
                                 labels: ["Calidad"]
 
@@ -130,9 +142,7 @@ const ResultHome = () => {
                     absolute top-2/4 left-1/3 transform -translate-x-1/2 -translate-y-1/2
                     ${colorTextValorNeutrosofico(predictData?.data.valor_neutrosófico || "")}
                     `}>
-                            {`${Math.round(
-                                (predictData?.data.calidad_final || 0) * 100
-                            ) || 0}%`}
+                            {`${probRedNeuronal}%`}
                         </StyledText>
                     </View>
                 </StyledView>
@@ -144,7 +154,12 @@ const ResultHome = () => {
                     <RocCurve
                         data={predictData.data.red_neuronal.roc_data || { fpr: [], tpr: [], thresholds: [] }}
                     />
-                </StyledView>
+                        </StyledView></>
+
+                }
+                {
+                    type === "RF" &&
+                <>
                 <StyledView className="flex flex-col items-center p-x-6">
                     <StyledText>
                         Porcentaje de Calidad
@@ -156,8 +171,7 @@ const ResultHome = () => {
                             data={{
                                 data: [
 
-                                    predictData?.data.random_forest.nueva_prediccion_probabilidad.length > 0 ?
-                                        predictData?.data.random_forest.nueva_prediccion_probabilidad[0] : 0
+                                    probRandomForest
                                 ],
                                 labels: ["Calidad"]
 
@@ -183,9 +197,7 @@ const ResultHome = () => {
                     absolute top-2/4 left-1/3 transform -translate-x-1/2 -translate-y-1/2
                     ${colorTextValorNeutrosofico(predictData?.data.valor_neutrosófico || "")}
                     `}>
-                            {`${Math.round(
-                                (predictData?.data.calidad_final || 0) * 100
-                            ) || 0}%`}
+                            {`${probRandomForest}%`}
                         </StyledText>
                     </View>
                 </StyledView>
@@ -196,7 +208,8 @@ const ResultHome = () => {
                     <RocCurve
                         data={predictData.data.random_forest.roc_data || { fpr: [], tpr: [], thresholds: [] }}
                     />
-                </StyledView>
+                            </StyledView></>
+                    }
             </StyledView>
         </ScrollView>
 

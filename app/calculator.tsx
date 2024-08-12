@@ -1,4 +1,4 @@
-import { StyledText } from '@/components/StyledView';
+import { StyledText, StyledView } from '@/components/StyledView';
 import { router, useNavigation } from 'expo-router';
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
@@ -8,7 +8,7 @@ const FormScreen = () => {
     const [humidity, setHumidity] = useState('');
     const [tdsValue, setTdsValue] = useState('');
     const [phLevel, setPhLevel] = useState('');
-    const handleSubmit = () => {
+    const handleSubmit = (type:string) => {
         
         if (!temperature || !humidity || !tdsValue || !phLevel) {
             Alert.alert('Error', 'Todos los campos son requeridos');
@@ -45,6 +45,7 @@ const FormScreen = () => {
                 humidity,
                 tdsValue,
                 phLevel,
+                type
             },
         })
     };
@@ -105,12 +106,25 @@ const FormScreen = () => {
                 value={phLevel}
                 onChangeText={setPhLevel}
             />
-
-            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-                <Text style={styles.buttonText}>
-                    CONTINUAR
-                </Text>
-            </TouchableOpacity>
+            <StyledView className="flex flex-row justify-between gap-4">
+                <StyledView className='w-1/3'>
+                    <TouchableOpacity style={styles.button} onPress={()=>handleSubmit("RF")}>
+                        <Text style={styles.buttonText}>
+                            Random {"\n"} Forest
+                        </Text>
+                    </TouchableOpacity>
+                </StyledView>
+                <StyledView className='w-1/3'>
+                
+                
+                <TouchableOpacity style={styles.button} onPress={()=>handleSubmit("RN")}>
+                    <Text style={styles.buttonText}>
+                        Redes Neuronales
+                    </Text>
+                </TouchableOpacity>
+                </StyledView>
+            </StyledView>
+            
         </View>
     );
 };
